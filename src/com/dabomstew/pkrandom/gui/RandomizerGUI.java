@@ -43,6 +43,7 @@ import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -64,7 +65,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
-import javax.xml.bind.DatatypeConverter;
 
 import com.dabomstew.pkrandom.CustomNamesSet;
 import com.dabomstew.pkrandom.FileFunctions;
@@ -735,7 +735,7 @@ public class RandomizerGUI extends javax.swing.JFrame {
         this.spCustomPoke2Chooser.setEnabled(false);
         this.spCustomPoke3Chooser.setEnabled(false);
         this.spCustomPoke1Chooser.setSelectedIndex(0);
-        this.spCustomPoke1Chooser.setModel(new DefaultComboBoxModel(new String[] { "--" }));
+        this.spCustomPoke1Chooser.setModel(new DefaultComboBoxModel<String>(new String[] { "--" }));
         this.spCustomPoke2Chooser.setSelectedIndex(0);
         this.spCustomPoke2Chooser.setModel(new DefaultComboBoxModel(new String[] { "--" }));
         this.spCustomPoke3Chooser.setSelectedIndex(0);
@@ -1277,7 +1277,7 @@ public class RandomizerGUI extends javax.swing.JFrame {
         for (int i = 1; i < allPokes.size(); i++) {
             pokeNames[i - 1] = allPokes.get(i).name;
         }
-        this.spCustomPoke1Chooser.setModel(new DefaultComboBoxModel(pokeNames));
+        this.spCustomPoke1Chooser.setModel(new DefaultComboBoxModel<String>(pokeNames));
         this.spCustomPoke1Chooser.setSelectedIndex(allPokes.indexOf(currentStarters.get(0)) - 1);
         this.spCustomPoke2Chooser.setModel(new DefaultComboBoxModel(pokeNames));
         this.spCustomPoke2Chooser.setSelectedIndex(allPokes.indexOf(currentStarters.get(1)) - 1);
@@ -1623,7 +1623,7 @@ public class RandomizerGUI extends javax.swing.JFrame {
                 throw e;
             }
         }
-        byte[] data = DatatypeConverter.parseBase64Binary(config);
+        byte[] data = Base64.getDecoder().decode(config);
 
         int nameLength = data[Settings.LENGTH_OF_SETTINGS_DATA] & 0xFF;
         if (data.length != Settings.LENGTH_OF_SETTINGS_DATA + 9 + nameLength) {
@@ -2626,9 +2626,9 @@ public class RandomizerGUI extends javax.swing.JFrame {
         starterPokemonPanel = new javax.swing.JPanel();
         spUnchangedRB = new javax.swing.JRadioButton();
         spCustomRB = new javax.swing.JRadioButton();
-        spCustomPoke1Chooser = new javax.swing.JComboBox();
-        spCustomPoke2Chooser = new javax.swing.JComboBox();
-        spCustomPoke3Chooser = new javax.swing.JComboBox();
+        spCustomPoke1Chooser = new javax.swing.JComboBox<>();
+        spCustomPoke2Chooser = new javax.swing.JComboBox<>();
+        spCustomPoke3Chooser = new javax.swing.JComboBox<>();
         spRandomRB = new javax.swing.JRadioButton();
         spRandom2EvosRB = new javax.swing.JRadioButton();
         spHeldItemsCB = new javax.swing.JCheckBox();
@@ -3243,13 +3243,13 @@ public class RandomizerGUI extends javax.swing.JFrame {
             }
         });
 
-        spCustomPoke1Chooser.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        spCustomPoke1Chooser.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         spCustomPoke1Chooser.setEnabled(false);
 
-        spCustomPoke2Chooser.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        spCustomPoke2Chooser.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         spCustomPoke2Chooser.setEnabled(false);
 
-        spCustomPoke3Chooser.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        spCustomPoke3Chooser.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         spCustomPoke3Chooser.setEnabled(false);
 
         starterPokemonButtonGroup.add(spRandomRB);
@@ -4734,9 +4734,9 @@ public class RandomizerGUI extends javax.swing.JFrame {
     private javax.swing.JButton saveQSButton;
     private javax.swing.JButton saveROMButton;
     private javax.swing.JButton settingsButton;
-    private javax.swing.JComboBox spCustomPoke1Chooser;
-    private javax.swing.JComboBox spCustomPoke2Chooser;
-    private javax.swing.JComboBox spCustomPoke3Chooser;
+    private javax.swing.JComboBox<String> spCustomPoke1Chooser;
+    private javax.swing.JComboBox<String> spCustomPoke2Chooser;
+    private javax.swing.JComboBox<String> spCustomPoke3Chooser;
     private javax.swing.JRadioButton spCustomRB;
     private javax.swing.JCheckBox spHeldItemsBanBadCB;
     private javax.swing.JCheckBox spHeldItemsCB;

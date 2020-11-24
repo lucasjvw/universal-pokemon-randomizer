@@ -1758,6 +1758,7 @@ public class Gen1RomHandler extends AbstractGBCRomHandler {
     }
 
     private static class SubMap {
+        @SuppressWarnings("unused")
         private int id;
         private int addr;
         private int bank;
@@ -1768,6 +1769,7 @@ public class Gen1RomHandler extends AbstractGBCRomHandler {
         private List<Integer> itemOffsets;
     }
 
+    @SuppressWarnings("unused")
     private static class MapHeader {
         private int tileset_id; // u8
         private int map_h, map_w; // u8
@@ -1776,6 +1778,7 @@ public class Gen1RomHandler extends AbstractGBCRomHandler {
         // 10 bytes
     }
 
+    @SuppressWarnings("unused")
     private static class Connection {
         private int index; // u8
         private int connected_map; // u16
