@@ -53,7 +53,7 @@ public class Trainer implements Comparable<Trainer> {
             if (!first) {
                 sb.append(',');
             }
-            sb.append(p.pokemon.name + " Lv" + p.level);
+            sb.append(p.pokemon.getName() + " Lv" + p.level);
             first = false;
         }
         sb.append(']');

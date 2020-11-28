@@ -40,7 +40,7 @@ public class TrainerPokemon {
     public boolean resetMoves = false;
 
     public String toString() {
-        return pokemon.name + " Lv" + level;
+        return pokemon.getName() + " Lv" + level;
     }
 
 }

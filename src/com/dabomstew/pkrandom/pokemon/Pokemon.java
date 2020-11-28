@@ -28,40 +28,298 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 public class Pokemon implements Comparable<Pokemon> {
 
-    public String name;
-    public int number;
+    private static final List<Integer> legendaries = Arrays.asList(144, 145, 146, 150, 151, 243, 244, 245, 249, 250,
+            251, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488,
+            489, 490, 491, 492, 493, 494, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649);
 
-    public Type primaryType, secondaryType;
+    private String name;
+    private int number;
 
-    public int hp, attack, defense, spatk, spdef, speed, special;
+    private Type primaryType;
+    private Type secondaryType;
 
-    public int ability1, ability2, ability3;
+    private int hp;
+    private int attack;
+    private int defense;
+    private int spatk;
+    private int spdef;
+    private int speed;
+    private int special;
 
-    public int catchRate, expYield;
+    private int ability1;
+    private int ability2;
+    private int ability3;
 
-    public int guaranteedHeldItem, commonHeldItem, rareHeldItem, darkGrassHeldItem;
+    private int catchRate;
+    private int expYield;
 
-    public int genderRatio;
+    private int guaranteedHeldItem;
+    private int commonHeldItem;
+    private int rareHeldItem;
+    private int darkGrassHeldItem;
 
-    public int frontSpritePointer, picDimensions;
+    private int genderRatio;
 
-    public ExpCurve growthCurve;
+    private int frontSpritePointer;
+    private int picDimensions;
 
-    public List<Evolution> evolutionsFrom = new ArrayList<Evolution>();
-    public List<Evolution> evolutionsTo = new ArrayList<Evolution>();
+    private ExpCurve growthCurve;
 
-    public List<Integer> shuffledStatsOrder = null;
+    private List<Evolution> evolutionsFrom = new ArrayList<Evolution>();
+    private List<Evolution> evolutionsTo = new ArrayList<Evolution>();
 
-    // A flag to use for things like recursive stats copying.
-    // Must not rely on the state of this flag being preserved between calls.
-    public boolean temporaryFlag;
+    private List<Integer> shuffledStatsOrder;
 
     public Pokemon() {
         shuffledStatsOrder = Arrays.asList(0, 1, 2, 3, 4, 5);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Pokemon setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public int getNumber() {
+        return number;
+    }
+
+    public Pokemon setNumber(int number) {
+        this.number = number;
+        return this;
+    }
+
+    public Type getPrimaryType() {
+        return primaryType;
+    }
+
+    public Pokemon setPrimaryType(Type primaryType) {
+        this.primaryType = primaryType;
+        return this;
+    }
+
+    public Type getSecondaryType() {
+        return secondaryType;
+    }
+
+    public Pokemon setSecondaryType(Type secondaryType) {
+        this.secondaryType = secondaryType;
+        return this;
+    }
+
+    public int getHp() {
+        return hp;
+    }
+
+    public Pokemon setHp(int hp) {
+        this.hp = hp;
+        return this;
+    }
+
+    public int getAttack() {
+        return attack;
+    }
+
+    public Pokemon setAttack(int attack) {
+        this.attack = attack;
+        return this;
+    }
+
+    public int getDefense() {
+        return defense;
+    }
+
+    public Pokemon setDefense(int defense) {
+        this.defense = defense;
+        return this;
+    }
+
+    public int getSpatk() {
+        return spatk;
+    }
+
+    public Pokemon setSpatk(int spatk) {
+        this.spatk = spatk;
+        return this;
+    }
+
+    public int getSpdef() {
+        return spdef;
+    }
+
+    public Pokemon setSpdef(int spdef) {
+        this.spdef = spdef;
+        return this;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public Pokemon setSpeed(int speed) {
+        this.speed = speed;
+        return this;
+    }
+
+    public int getSpecial() {
+        return special;
+    }
+
+    public Pokemon setSpecial(int special) {
+        this.special = special;
+        return this;
+    }
+
+    public int getAbility1() {
+        return ability1;
+    }
+
+    public Pokemon setAbility1(int ability1) {
+        this.ability1 = ability1;
+        return this;
+    }
+
+    public int getAbility2() {
+        return ability2;
+    }
+
+    public Pokemon setAbility2(int ability2) {
+        this.ability2 = ability2;
+        return this;
+    }
+
+    public int getAbility3() {
+        return ability3;
+    }
+
+    public Pokemon setAbility3(int ability3) {
+        this.ability3 = ability3;
+        return this;
+    }
+
+    public int getCatchRate() {
+        return catchRate;
+    }
+
+    public Pokemon setCatchRate(int catchRate) {
+        this.catchRate = catchRate;
+        return this;
+    }
+
+    public int getExpYield() {
+        return expYield;
+    }
+
+    public Pokemon setExpYield(int expYield) {
+        this.expYield = expYield;
+        return this;
+    }
+
+    public int getGuaranteedHeldItem() {
+        return guaranteedHeldItem;
+    }
+
+    public Pokemon setGuaranteedHeldItem(int guaranteedHeldItem) {
+        this.guaranteedHeldItem = guaranteedHeldItem;
+        return this;
+    }
+
+    public int getCommonHeldItem() {
+        return commonHeldItem;
+    }
+
+    public Pokemon setCommonHeldItem(int commonHeldItem) {
+        this.commonHeldItem = commonHeldItem;
+        return this;
+    }
+
+    public int getRareHeldItem() {
+        return rareHeldItem;
+    }
+
+    public Pokemon setRareHeldItem(int rareHeldItem) {
+        this.rareHeldItem = rareHeldItem;
+        return this;
+    }
+
+    public int getDarkGrassHeldItem() {
+        return darkGrassHeldItem;
+    }
+
+    public Pokemon setDarkGrassHeldItem(int darkGrassHeldItem) {
+        this.darkGrassHeldItem = darkGrassHeldItem;
+        return this;
+    }
+
+    public int getGenderRatio() {
+        return genderRatio;
+    }
+
+    public Pokemon setGenderRatio(int genderRatio) {
+        this.genderRatio = genderRatio;
+        return this;
+    }
+
+    public int getFrontSpritePointer() {
+        return frontSpritePointer;
+    }
+
+    public Pokemon setFrontSpritePointer(int frontSpritePointer) {
+        this.frontSpritePointer = frontSpritePointer;
+        return this;
+    }
+
+    public int getPicDimensions() {
+        return picDimensions;
+    }
+
+    public Pokemon setPicDimensions(int picDimensions) {
+        this.picDimensions = picDimensions;
+        return this;
+    }
+
+    public ExpCurve getGrowthCurve() {
+        return growthCurve;
+    }
+
+    public Pokemon setGrowthCurve(ExpCurve growthCurve) {
+        this.growthCurve = growthCurve;
+        return this;
+    }
+
+    public List<Evolution> getEvolutionsFrom() {
+        return evolutionsFrom;
+    }
+
+    public Pokemon setEvolutionsFrom(List<Evolution> evolutionsFrom) {
+        this.evolutionsFrom = evolutionsFrom;
+        return this;
+    }
+
+    public List<Evolution> getEvolutionsTo() {
+        return evolutionsTo;
+    }
+
+    public Pokemon setEvolutionsTo(List<Evolution> evolutionsTo) {
+        this.evolutionsTo = evolutionsTo;
+        return this;
+    }
+
+    public List<Integer> getShuffledStatsOrder() {
+        return shuffledStatsOrder;
+    }
+
+    public Pokemon setShuffledStatsOrder(List<Integer> shuffledStatsOrder) {
+        this.shuffledStatsOrder = shuffledStatsOrder;
+        return this;
     }
 
     public void shuffleStats(Random random) {
@@ -70,27 +328,27 @@ public class Pokemon implements Comparable<Pokemon> {
     }
     
     public void copyShuffledStatsUpEvolution(Pokemon evolvesFrom) {
-        shuffledStatsOrder = evolvesFrom.shuffledStatsOrder;
+        setShuffledStatsOrder(evolvesFrom.getShuffledStatsOrder());
         applyShuffledOrderToStats();
     }
 
     private void applyShuffledOrderToStats() {
-        List<Integer> stats = Arrays.asList(hp, attack, defense, spatk, spdef, speed);
+        List<Integer> stats = Arrays.asList(getHp(), getAttack(), getDefense(), getSpatk(), getSpdef(), getSpeed());
 
         // Copy in new stats
-        hp = stats.get(shuffledStatsOrder.get(0));
-        attack = stats.get(shuffledStatsOrder.get(1));
-        defense = stats.get(shuffledStatsOrder.get(2));
-        spatk = stats.get(shuffledStatsOrder.get(3));
-        spdef = stats.get(shuffledStatsOrder.get(4));
-        speed = stats.get(shuffledStatsOrder.get(5));
+        setHp(stats.get(shuffledStatsOrder.get(0)));
+        setAttack(stats.get(shuffledStatsOrder.get(1)));
+        setDefense(stats.get(shuffledStatsOrder.get(2)));
+        setSpatk(stats.get(shuffledStatsOrder.get(3)));
+        setSpdef(stats.get(shuffledStatsOrder.get(4)));
+        setSpeed(stats.get(shuffledStatsOrder.get(5)));
 
         // make special the average of spatk and spdef
-        special = (int) Math.ceil((spatk + spdef) / 2.0f);
+        setSpecial((int) Math.ceil((getSpatk() + getSpdef()) / 2.0f));
     }
 
     public void randomizeStatsWithinBST(Random random) {
-        if (number == 292) {
+        if (getNumber() == 292) {
             // Shedinja is horribly broken unless we restrict him to 1HP.
             int bst = bst() - 51;
 
@@ -100,15 +358,15 @@ public class Pokemon implements Comparable<Pokemon> {
 
             double totW = atkW + defW + spaW + spdW + speW;
 
-            hp = 1;
-            attack = (int) Math.max(1, Math.round(atkW / totW * bst)) + 10;
-            defense = (int) Math.max(1, Math.round(defW / totW * bst)) + 10;
-            spatk = (int) Math.max(1, Math.round(spaW / totW * bst)) + 10;
-            spdef = (int) Math.max(1, Math.round(spdW / totW * bst)) + 10;
-            speed = (int) Math.max(1, Math.round(speW / totW * bst)) + 10;
+            setHp(1);
+            setAttack((int) Math.max(1, Math.round(atkW / totW * bst)) + 10);
+            setDefense((int) Math.max(1, Math.round(defW / totW * bst)) + 10);
+            setSpatk((int) Math.max(1, Math.round(spaW / totW * bst)) + 10);
+            setSpdef((int) Math.max(1, Math.round(spdW / totW * bst)) + 10);
+            setSpeed((int) Math.max(1, Math.round(speW / totW * bst)) + 10);
 
             // Fix up special too
-            special = (int) Math.ceil((spatk + spdef) / 2.0f);
+            setSpecial((int) Math.ceil((getSpatk() + getSpdef()) / 2.0f));
 
         } else {
             // Minimum 20 HP, 10 everything else
@@ -120,19 +378,19 @@ public class Pokemon implements Comparable<Pokemon> {
 
             double totW = hpW + atkW + defW + spaW + spdW + speW;
 
-            hp = (int) Math.max(1, Math.round(hpW / totW * bst)) + 20;
-            attack = (int) Math.max(1, Math.round(atkW / totW * bst)) + 10;
-            defense = (int) Math.max(1, Math.round(defW / totW * bst)) + 10;
-            spatk = (int) Math.max(1, Math.round(spaW / totW * bst)) + 10;
-            spdef = (int) Math.max(1, Math.round(spdW / totW * bst)) + 10;
-            speed = (int) Math.max(1, Math.round(speW / totW * bst)) + 10;
+            setHp((int) Math.max(1, Math.round(hpW / totW * bst)) + 20);
+            setAttack((int) Math.max(1, Math.round(atkW / totW * bst)) + 10);
+            setDefense((int) Math.max(1, Math.round(defW / totW * bst)) + 10);
+            setSpatk((int) Math.max(1, Math.round(spaW / totW * bst)) + 10);
+            setSpdef((int) Math.max(1, Math.round(spdW / totW * bst)) + 10);
+            setSpeed((int) Math.max(1, Math.round(speW / totW * bst)) + 10);
 
             // Fix up special too
-            special = (int) Math.ceil((spatk + spdef) / 2.0f);
+            setSpecial((int) Math.ceil((getSpatk() + getSpdef()) / 2.0f));
         }
 
         // Check for something we can't store
-        if (hp > 255 || attack > 255 || defense > 255 || spatk > 255 || spdef > 255 || speed > 255) {
+        if (getHp() > 255 || getAttack() > 255 || getDefense() > 255 || getSpatk() > 255 || getSpdef() > 255 || getSpeed() > 255) {
             // re roll
             randomizeStatsWithinBST(random);
         }
@@ -145,75 +403,66 @@ public class Pokemon implements Comparable<Pokemon> {
 
         double bstRatio = ourBST / theirBST;
 
-        hp = (int) Math.min(255, Math.max(1, Math.round(evolvesFrom.hp * bstRatio)));
-        attack = (int) Math.min(255, Math.max(1, Math.round(evolvesFrom.attack * bstRatio)));
-        defense = (int) Math.min(255, Math.max(1, Math.round(evolvesFrom.defense * bstRatio)));
-        speed = (int) Math.min(255, Math.max(1, Math.round(evolvesFrom.speed * bstRatio)));
-        spatk = (int) Math.min(255, Math.max(1, Math.round(evolvesFrom.spatk * bstRatio)));
-        spdef = (int) Math.min(255, Math.max(1, Math.round(evolvesFrom.spdef * bstRatio)));
+        setHp((int) Math.min(255, Math.max(1, Math.round(evolvesFrom.getHp() * bstRatio))));
+        setAttack((int) Math.min(255, Math.max(1, Math.round(evolvesFrom.getAttack() * bstRatio))));
+        setDefense((int) Math.min(255, Math.max(1, Math.round(evolvesFrom.getDefense() * bstRatio))));
+        setSpeed((int) Math.min(255, Math.max(1, Math.round(evolvesFrom.getSpeed() * bstRatio))));
+        setSpatk((int) Math.min(255, Math.max(1, Math.round(evolvesFrom.getSpatk() * bstRatio))));
+        setSpdef((int) Math.min(255, Math.max(1, Math.round(evolvesFrom.getSpdef() * bstRatio))));
 
-        special = (int) Math.ceil((spatk + spdef) / 2.0f);
+        setSpecial((int) Math.ceil((getSpatk() + getSpdef()) / 2.0f));
     }
 
     public int bst() {
-        return hp + attack + defense + spatk + spdef + speed;
+        return getHp() + getAttack() + getDefense() + getSpatk() + getSpdef() + getSpeed();
     }
 
     public int bstForPowerLevels() {
         // Take into account Shedinja's purposefully nerfed HP
-        if (number == 292) {
-            return (attack + defense + spatk + spdef + speed) * 6 / 5;
+        if (getNumber() == 292) {
+            return (getAttack() + getDefense() + getSpatk() + getSpdef() + getSpeed()) * 6 / 5;
         } else {
-            return hp + attack + defense + spatk + spdef + speed;
+            return getHp() + getAttack() + getDefense() + getSpatk() + getSpdef() + getSpeed();
         }
     }
 
     @Override
     public String toString() {
-        return "Pokemon [name=" + name + ", number=" + number + ", primaryType=" + primaryType + ", secondaryType="
-                + secondaryType + ", hp=" + hp + ", attack=" + attack + ", defense=" + defense + ", spatk=" + spatk
-                + ", spdef=" + spdef + ", speed=" + speed + "]";
+        return "Pokemon [name=" + getName() + ", number=" + getNumber() + ", primaryType=" + getPrimaryType() + ", secondaryType="
+                + getSecondaryType() + ", hp=" + getHp() + ", attack=" + getAttack() + ", defense=" + getDefense() + ", spatk=" + getSpatk()
+                + ", spdef=" + getSpdef() + ", speed=" + getSpeed() + "]";
     }
 
     public String toStringRBY() {
-        return "Pokemon [name=" + name + ", number=" + number + ", primaryType=" + primaryType + ", secondaryType="
-                + secondaryType + ", hp=" + hp + ", attack=" + attack + ", defense=" + defense + ", special=" + special
-                + ", speed=" + speed + "]";
+        return "Pokemon [name=" + getName() + ", number=" + getNumber() + ", primaryType=" + getPrimaryType() + ", secondaryType="
+                + getSecondaryType() + ", hp=" + getHp() + ", attack=" + getAttack() + ", defense=" + getDefense() + ", special=" + getSpecial()
+                + ", speed=" + getSpeed() + "]";
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + number;
-        return result;
+        return Objects.hash(number);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (!(obj instanceof Pokemon)) {
             return false;
-        if (getClass() != obj.getClass())
-            return false;
+        }
         Pokemon other = (Pokemon) obj;
-        if (number != other.number)
-            return false;
-        return true;
+        return number == other.number;
     }
 
     @Override
     public int compareTo(Pokemon o) {
-        return number - o.number;
+        return Integer.compare(getNumber(), o.getNumber());
     }
 
-    private static final List<Integer> legendaries = Arrays.asList(144, 145, 146, 150, 151, 243, 244, 245, 249, 250,
-            251, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488,
-            489, 490, 491, 492, 493, 494, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649);
-
     public boolean isLegendary() {
-        return legendaries.contains(this.number);
+        return legendaries.contains(this.getNumber());
     }
 
 }
