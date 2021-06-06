@@ -54,7 +54,6 @@ import com.dabomstew.pkrandom.pokemon.Evolution;
 import com.dabomstew.pkrandom.pokemon.EvolutionType;
 import com.dabomstew.pkrandom.pokemon.ExpCurve;
 import com.dabomstew.pkrandom.pokemon.GenRestrictions;
-import com.dabomstew.pkrandom.pokemon.IngameTrade;
 import com.dabomstew.pkrandom.pokemon.ItemList;
 import com.dabomstew.pkrandom.pokemon.Move;
 import com.dabomstew.pkrandom.pokemon.MoveCategory;
@@ -2210,108 +2209,6 @@ public abstract class AbstractRomHandler implements RomHandler {
 
         this.setRegularFieldItems(newItems);
         this.setFieldTMs(newTMs);
-    }
-
-    @Override
-    public void randomizeIngameTrades(boolean randomizeRequest, boolean randomNickname, boolean randomOT,
-            boolean randomStats, boolean randomItem, CustomNamesSet customNames) {
-        // Process trainer names
-        List<String> trainerNames = new ArrayList<String>();
-        // Check for the file
-        if (randomOT) {
-            int maxOT = this.maxTradeOTNameLength();
-            for (String trainername : customNames.getTrainerNames()) {
-                int len = this.internalStringLength(trainername);
-                if (len <= maxOT && !trainerNames.contains(trainername)) {
-                    trainerNames.add(trainername);
-                }
-            }
-        }
-
-        // Process nicknames
-        List<String> nicknames = new ArrayList<String>();
-        // Check for the file
-        if (randomNickname) {
-            int maxNN = this.maxTradeNicknameLength();
-            for (String nickname : customNames.getPokemonNicknames()) {
-                int len = this.internalStringLength(nickname);
-                if (len <= maxNN && !nicknames.contains(nickname)) {
-                    nicknames.add(nickname);
-                }
-            }
-        }
-
-        // get old trades
-        List<IngameTrade> trades = this.getIngameTrades();
-        List<Pokemon> usedRequests = new ArrayList<Pokemon>();
-        List<Pokemon> usedGivens = new ArrayList<Pokemon>();
-        List<String> usedOTs = new ArrayList<String>();
-        List<String> usedNicknames = new ArrayList<String>();
-        ItemList possibleItems = this.getAllowedItems();
-
-        int nickCount = nicknames.size();
-        int trnameCount = trainerNames.size();
-
-        for (IngameTrade trade : trades) {
-            // pick new given pokemon
-            Pokemon oldgiven = trade.givenPokemon;
-            Pokemon given = this.randomPokemon();
-            while (usedGivens.contains(given)) {
-                given = this.randomPokemon();
-            }
-            usedGivens.add(given);
-            trade.givenPokemon = given;
-
-            // requested pokemon?
-            if (oldgiven == trade.requestedPokemon) {
-                // preserve trades for the same pokemon
-                trade.requestedPokemon = given;
-            } else if (randomizeRequest) {
-                Pokemon request = this.randomPokemon();
-                while (usedRequests.contains(request) || request == given) {
-                    request = this.randomPokemon();
-                }
-                usedRequests.add(request);
-                trade.requestedPokemon = request;
-            }
-
-            // nickname?
-            if (randomNickname && nickCount > usedNicknames.size()) {
-                String nickname = nicknames.get(this.random.nextInt(nickCount));
-                while (usedNicknames.contains(nickname)) {
-                    nickname = nicknames.get(this.random.nextInt(nickCount));
-                }
-                usedNicknames.add(nickname);
-                trade.nickname = nickname;
-            } else if (trade.nickname.equalsIgnoreCase(oldgiven.getName())) {
-                // change the name for sanity
-                trade.nickname = trade.givenPokemon.getName();
-            }
-
-            if (randomOT && trnameCount > usedOTs.size()) {
-                String ot = trainerNames.get(this.random.nextInt(trnameCount));
-                while (usedOTs.contains(ot)) {
-                    ot = trainerNames.get(this.random.nextInt(trnameCount));
-                }
-                usedOTs.add(ot);
-                trade.otName = ot;
-                trade.otId = this.random.nextInt(65536);
-            }
-
-            if (randomStats) {
-                int maxIV = this.hasDVs() ? 16 : 32;
-                for (int i = 0; i < trade.ivs.length; i++) {
-                    trade.ivs[i] = this.random.nextInt(maxIV);
-                }
-            }
-
-            if (randomItem) {
-                trade.item = possibleItems.randomItem(this.random);
-            }
-        }
-
-        // things that the game doesn't support should just be ignored
-        this.setIngameTrades(trades);
     }
 
     @Override

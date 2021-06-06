@@ -374,9 +374,6 @@ public interface RomHandler {
 
     public void setIngameTrades(List<IngameTrade> trades);
 
-    public void randomizeIngameTrades(boolean randomizeRequest, boolean randomNickname, boolean randomOT,
-            boolean randomStats, boolean randomItem, CustomNamesSet customNames);
-
     public boolean hasDVs();
 
     public int maxTradeNicknameLength();

@@ -7,5 +7,7 @@ package com.dabomstew.pkrandom;
  *
  */
 public interface Modifier {
+    
+    public void modify();
 
 }

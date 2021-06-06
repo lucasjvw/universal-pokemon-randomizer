@@ -44,6 +44,7 @@ import com.dabomstew.pkrandom.pokemon.TrainerPokemon;
 import com.dabomstew.pkrandom.romhandlers.Gen1RomHandler;
 import com.dabomstew.pkrandom.romhandlers.Gen5RomHandler;
 import com.dabomstew.pkrandom.romhandlers.RomHandler;
+import com.dabomstew.pkrandom.trade.TradeModifier;
 import com.dabomstew.pkrandom.wild.WildPokemonModifier;
 
 // Can randomize a file based on settings. Output varies by seed.
@@ -458,15 +459,7 @@ public class Randomizer {
 
         // In-game trades
         List<IngameTrade> oldTrades = romHandler.getIngameTrades();
-        if (settings.getInGameTradesMod() == Settings.InGameTradesMod.RANDOMIZE_GIVEN) {
-            romHandler.randomizeIngameTrades(false, settings.isRandomizeInGameTradesNicknames(),
-                    settings.isRandomizeInGameTradesOTs(), settings.isRandomizeInGameTradesIVs(),
-                    settings.isRandomizeInGameTradesItems(), settings.getCustomNames());
-        } else if (settings.getInGameTradesMod() == Settings.InGameTradesMod.RANDOMIZE_GIVEN_AND_REQUESTED) {
-            romHandler.randomizeIngameTrades(true, settings.isRandomizeInGameTradesNicknames(),
-                    settings.isRandomizeInGameTradesOTs(), settings.isRandomizeInGameTradesIVs(),
-                    settings.isRandomizeInGameTradesItems(), settings.getCustomNames());
-        }
+        new TradeModifier(romHandler, settings, romHandler.getRandom()).modify();
 
         if (!(settings.getInGameTradesMod() == Settings.InGameTradesMod.UNCHANGED)) {
             log.println("--In-Game Trades--");
