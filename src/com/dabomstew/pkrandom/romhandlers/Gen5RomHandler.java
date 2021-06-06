@@ -2259,23 +2259,9 @@ public class Gen5RomHandler extends AbstractDSRomHandler {
 
     @Override
     public void removeEvosForPokemonPool() {
+        super.removeEvosForPokemonPool();
         // slightly more complicated than gen2/3
         // we have to update a "baby table" too
-        List<Pokemon> pokemonIncluded = this.mainPokemonList;
-        Set<Evolution> keepEvos = new HashSet<Evolution>();
-        for (Pokemon pk : pokes) {
-            if (pk != null) {
-                keepEvos.clear();
-                for (Evolution evol : pk.getEvolutionsFrom()) {
-                    if (pokemonIncluded.contains(evol.from) && pokemonIncluded.contains(evol.to)) {
-                        keepEvos.add(evol);
-                    } else {
-                        evol.to.getEvolutionsTo().remove(evol);
-                    }
-                }
-                pk.getEvolutionsFrom().retainAll(keepEvos);
-            }
-        }
 
         try {
             NARCArchive babyNARC = readNARC(romEntry.getString("BabyPokemon"));

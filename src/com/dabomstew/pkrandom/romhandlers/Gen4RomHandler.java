@@ -2516,23 +2516,9 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
 
     @Override
     public void removeEvosForPokemonPool() {
+        super.removeEvosForPokemonPool();
         // slightly more complicated than gen2/3
         // we have to update a "baby table" too
-        List<Pokemon> pokemonIncluded = this.mainPokemonList;
-        Set<Evolution> keepEvos = new HashSet<Evolution>();
-        for (Pokemon pk : pokes) {
-            if (pk != null) {
-                keepEvos.clear();
-                for (Evolution evol : pk.getEvolutionsFrom()) {
-                    if (pokemonIncluded.contains(evol.from) && pokemonIncluded.contains(evol.to)) {
-                        keepEvos.add(evol);
-                    } else {
-                        evol.to.getEvolutionsTo().remove(evol);
-                    }
-                }
-                pk.getEvolutionsFrom().retainAll(keepEvos);
-            }
-        }
 
         try {
             byte[] babyPokes = readFile(romEntry.getString("BabyPokemon"));
@@ -2644,9 +2630,8 @@ public class Gen4RomHandler extends AbstractDSRomHandler {
     }
 
     private Pokemon randomPokemonLimited(int maxValue, boolean blockNonMales) {
-        checkPokemonRestrictions();
         List<Pokemon> validPokemon = new ArrayList<Pokemon>();
-        for (Pokemon pk : this.mainPokemonList) {
+        for (Pokemon pk : getPokemonPool().getPokemon()) {
             if (pk.getNumber() <= maxValue && (!blockNonMales || pk.getGenderRatio() <= 0xFD)) {
                 validPokemon.add(pk);
             }

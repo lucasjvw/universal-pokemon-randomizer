@@ -1958,12 +1958,14 @@ public class RandomizerGUI extends javax.swing.JFrame {
                                 verboseLog, seed));
                         succeededSave = true;
                     } catch (RandomizationException ex) {
+                        ex.printStackTrace();
                         attemptToLogException(ex, "RandomizerGUI.saveFailedMessage",
                                 "RandomizerGUI.saveFailedMessageNoLog", true);
                         if (verboseLog != null) {
                             verboseLog.close();
                         }
                     } catch (Exception ex) {
+                        ex.printStackTrace();
                         attemptToLogException(ex, "RandomizerGUI.saveFailedIO", "RandomizerGUI.saveFailedIONoLog");
                         if (verboseLog != null) {
                             verboseLog.close();

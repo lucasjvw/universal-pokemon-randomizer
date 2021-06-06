@@ -115,6 +115,11 @@ public class Pokemon implements Comparable<Pokemon> {
         return this;
     }
 
+    public boolean hasType(Type type) {
+        return (primaryType != null && primaryType == type)
+                || (secondaryType != null && secondaryType == type);
+    }
+
     public int getHp() {
         return hp;
     }

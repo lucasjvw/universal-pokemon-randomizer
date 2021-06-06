@@ -44,6 +44,7 @@ import com.dabomstew.pkrandom.pokemon.TrainerPokemon;
 import com.dabomstew.pkrandom.romhandlers.Gen1RomHandler;
 import com.dabomstew.pkrandom.romhandlers.Gen5RomHandler;
 import com.dabomstew.pkrandom.romhandlers.RomHandler;
+import com.dabomstew.pkrandom.wild.WildPokemonModifier;
 
 // Can randomize a file based on settings. Output varies by seed.
 public class Randomizer {
@@ -80,10 +81,8 @@ public class Randomizer {
 
         // limit pokemon?
         if (settings.isLimitPokemon()) {
-            romHandler.setPokemonPool(settings.getCurrentRestrictions());
+            romHandler.generatePokemonPool(settings.getCurrentRestrictions());
             romHandler.removeEvosForPokemonPool();
-        } else {
-            romHandler.setPokemonPool(null);
         }
 
         // Move updates & data changes
@@ -362,30 +361,8 @@ public class Randomizer {
             }
             romHandler.minimumCatchRate(normalMin, legendaryMin);
         }
-
-        switch (settings.getWildPokemonMod()) {
-        case RANDOM:
-            romHandler.randomEncounters(settings.isUseTimeBasedEncounters(),
-                    settings.getWildPokemonRestrictionMod() == Settings.WildPokemonRestrictionMod.CATCH_EM_ALL,
-                    settings.getWildPokemonRestrictionMod() == Settings.WildPokemonRestrictionMod.TYPE_THEME_AREAS,
-                    settings.getWildPokemonRestrictionMod() == Settings.WildPokemonRestrictionMod.SIMILAR_STRENGTH,
-                    settings.isBlockWildLegendaries());
-            break;
-        case AREA_MAPPING:
-            romHandler.area1to1Encounters(settings.isUseTimeBasedEncounters(),
-                    settings.getWildPokemonRestrictionMod() == Settings.WildPokemonRestrictionMod.CATCH_EM_ALL,
-                    settings.getWildPokemonRestrictionMod() == Settings.WildPokemonRestrictionMod.TYPE_THEME_AREAS,
-                    settings.getWildPokemonRestrictionMod() == Settings.WildPokemonRestrictionMod.SIMILAR_STRENGTH,
-                    settings.isBlockWildLegendaries());
-            break;
-        case GLOBAL_MAPPING:
-            romHandler.game1to1Encounters(settings.isUseTimeBasedEncounters(),
-                    settings.getWildPokemonRestrictionMod() == Settings.WildPokemonRestrictionMod.SIMILAR_STRENGTH,
-                    settings.isBlockWildLegendaries());
-            break;
-        default:
-            break;
-        }
+        
+        new WildPokemonModifier(romHandler, settings, romHandler.getRandom()).modify();
 
         maybeLogWildPokemonChanges(log, romHandler);
         List<EncounterSet> encounters = romHandler.getEncounters(settings.isUseTimeBasedEncounters());

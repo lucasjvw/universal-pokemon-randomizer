@@ -2542,9 +2542,8 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
     }
 
     private Pokemon randomPokemonLimited(int maxValue, boolean blockNonMales) {
-        checkPokemonRestrictions();
         List<Pokemon> validPokemon = new ArrayList<Pokemon>();
-        for (Pokemon pk : this.mainPokemonList) {
+        for (Pokemon pk : getPokemonPool().getPokemon()) {
             if (pokedexToInternal[pk.getNumber()] <= maxValue && (!blockNonMales || pk.getGenderRatio() <= 0xFD)) {
                 validPokemon.add(pk);
             }
@@ -2905,25 +2904,6 @@ public class Gen3RomHandler extends AbstractGBRomHandler {
     @Override
     public int generationOfPokemon() {
         return 3;
-    }
-
-    @Override
-    public void removeEvosForPokemonPool() {
-        List<Pokemon> pokemonIncluded = this.mainPokemonList;
-        Set<Evolution> keepEvos = new HashSet<Evolution>();
-        for (Pokemon pk : pokes) {
-            if (pk != null) {
-                keepEvos.clear();
-                for (Evolution evol : pk.getEvolutionsFrom()) {
-                    if (pokemonIncluded.contains(evol.from) && pokemonIncluded.contains(evol.to)) {
-                        keepEvos.add(evol);
-                    } else {
-                        evol.to.getEvolutionsTo().remove(evol);
-                    }
-                }
-                pk.getEvolutionsFrom().retainAll(keepEvos);
-            }
-        }
     }
 
     @Override

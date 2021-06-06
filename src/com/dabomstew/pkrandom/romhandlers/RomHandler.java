@@ -39,6 +39,7 @@ import com.dabomstew.pkrandom.pokemon.ItemList;
 import com.dabomstew.pkrandom.pokemon.Move;
 import com.dabomstew.pkrandom.pokemon.MoveLearnt;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
+import com.dabomstew.pkrandom.pokemon.PokemonPool;
 import com.dabomstew.pkrandom.pokemon.Trainer;
 import com.dabomstew.pkrandom.pokemon.Type;
 
@@ -53,6 +54,8 @@ public interface RomHandler {
 
         public abstract boolean isLoadable(String filename);
     }
+    
+    public Random getRandom();
 
     // Basic load/save to filenames
 
@@ -71,7 +74,9 @@ public interface RomHandler {
     public List<Pokemon> getPokemon();
 
     // Setup Gen Restrictions.
-    public void setPokemonPool(GenRestrictions restrictions);
+    public PokemonPool generatePokemonPool(GenRestrictions restrictions);
+    // Setup Gen Restrictions.
+    public PokemonPool getPokemonPool();
 
     public void removeEvosForPokemonPool();
 
@@ -144,14 +149,6 @@ public interface RomHandler {
     public List<EncounterSet> getEncounters(boolean useTimeOfDay);
 
     public void setEncounters(boolean useTimeOfDay, List<EncounterSet> encounters);
-
-    public void randomEncounters(boolean useTimeOfDay, boolean catchEmAll, boolean typeThemed, boolean usePowerLevels,
-            boolean noLegendaries);
-
-    public void area1to1Encounters(boolean useTimeOfDay, boolean catchEmAll, boolean typeThemed,
-            boolean usePowerLevels, boolean noLegendaries);
-
-    public void game1to1Encounters(boolean useTimeOfDay, boolean usePowerLevels, boolean noLegendaries);
 
     public boolean hasTimeBasedEncounters();
 

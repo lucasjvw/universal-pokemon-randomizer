@@ -43,14 +43,13 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import com.dabomstew.pkrandom.CustomNamesSet;
 import com.dabomstew.pkrandom.MiscTweak;
 import com.dabomstew.pkrandom.RomFunctions;
 import com.dabomstew.pkrandom.constants.GlobalConstants;
 import com.dabomstew.pkrandom.exceptions.RandomizationException;
-import com.dabomstew.pkrandom.pokemon.Encounter;
-import com.dabomstew.pkrandom.pokemon.EncounterSet;
 import com.dabomstew.pkrandom.pokemon.Evolution;
 import com.dabomstew.pkrandom.pokemon.EvolutionType;
 import com.dabomstew.pkrandom.pokemon.ExpCurve;
@@ -61,15 +60,14 @@ import com.dabomstew.pkrandom.pokemon.Move;
 import com.dabomstew.pkrandom.pokemon.MoveCategory;
 import com.dabomstew.pkrandom.pokemon.MoveLearnt;
 import com.dabomstew.pkrandom.pokemon.Pokemon;
+import com.dabomstew.pkrandom.pokemon.PokemonPool;
 import com.dabomstew.pkrandom.pokemon.Trainer;
 import com.dabomstew.pkrandom.pokemon.TrainerPokemon;
 import com.dabomstew.pkrandom.pokemon.Type;
 
 public abstract class AbstractRomHandler implements RomHandler {
 
-    private boolean restrictionsSet;
-    protected List<Pokemon> mainPokemonList;
-    protected List<Pokemon> noLegendaryList, onlyLegendaryList;
+    private PokemonPool pokemonPool;
     protected final Random random;
     protected PrintStream logStream;
 
@@ -79,6 +77,11 @@ public abstract class AbstractRomHandler implements RomHandler {
         this.random = random;
         this.logStream = logStream;
     }
+    
+    @Override
+    public final Random getRandom() {
+        return random;
+    }
 
     /*
      * Public Methods, implemented here for all gens. Unlikely to be overridden.
@@ -86,110 +89,6 @@ public abstract class AbstractRomHandler implements RomHandler {
 
     public void setLog(PrintStream logStream) {
         this.logStream = logStream;
-    }
-
-    public void setPokemonPool(GenRestrictions restrictions) {
-        restrictionsSet = true;
-        mainPokemonList = this.allPokemonWithoutNull();
-        if (restrictions != null) {
-            mainPokemonList = new ArrayList<Pokemon>();
-            List<Pokemon> allPokemon = this.getPokemon();
-
-            if (restrictions.allow_gen1) {
-                addPokesFromRange(mainPokemonList, allPokemon, 1, 151);
-                if (restrictions.assoc_g1_g2 && allPokemon.size() > 251) {
-                    addEvosFromRange(mainPokemonList, 1, 151, 152, 251);
-                }
-                if (restrictions.assoc_g1_g4 && allPokemon.size() > 493) {
-                    addEvosFromRange(mainPokemonList, 1, 151, 387, 493);
-                }
-            }
-
-            if (restrictions.allow_gen2 && allPokemon.size() > 251) {
-                addPokesFromRange(mainPokemonList, allPokemon, 152, 251);
-                if (restrictions.assoc_g2_g1) {
-                    addEvosFromRange(mainPokemonList, 152, 251, 1, 151);
-                }
-                if (restrictions.assoc_g2_g3 && allPokemon.size() > 386) {
-                    addEvosFromRange(mainPokemonList, 152, 251, 252, 386);
-                }
-                if (restrictions.assoc_g2_g4 && allPokemon.size() > 493) {
-                    addEvosFromRange(mainPokemonList, 152, 251, 387, 493);
-                }
-            }
-
-            if (restrictions.allow_gen3 && allPokemon.size() > 386) {
-                addPokesFromRange(mainPokemonList, allPokemon, 252, 386);
-                if (restrictions.assoc_g3_g2) {
-                    addEvosFromRange(mainPokemonList, 252, 386, 152, 251);
-                }
-                if (restrictions.assoc_g3_g4 && allPokemon.size() > 493) {
-                    addEvosFromRange(mainPokemonList, 252, 386, 387, 493);
-                }
-            }
-
-            if (restrictions.allow_gen4 && allPokemon.size() > 493) {
-                addPokesFromRange(mainPokemonList, allPokemon, 387, 493);
-                if (restrictions.assoc_g4_g1) {
-                    addEvosFromRange(mainPokemonList, 387, 493, 1, 151);
-                }
-                if (restrictions.assoc_g4_g2) {
-                    addEvosFromRange(mainPokemonList, 387, 493, 152, 251);
-                }
-                if (restrictions.assoc_g4_g3) {
-                    addEvosFromRange(mainPokemonList, 387, 493, 252, 386);
-                }
-            }
-
-            if (restrictions.allow_gen5 && allPokemon.size() > 649) {
-                addPokesFromRange(mainPokemonList, allPokemon, 494, 649);
-            }
-        }
-
-        noLegendaryList = new ArrayList<Pokemon>();
-        onlyLegendaryList = new ArrayList<Pokemon>();
-
-        for (Pokemon p : mainPokemonList) {
-            if (p.isLegendary()) {
-                onlyLegendaryList.add(p);
-            } else {
-                noLegendaryList.add(p);
-            }
-        }
-    }
-
-    private void addPokesFromRange(List<Pokemon> pokemonPool, List<Pokemon> allPokemon, int range_min, int range_max) {
-        for (int i = range_min; i <= range_max; i++) {
-            if (!pokemonPool.contains(allPokemon.get(i))) {
-                pokemonPool.add(allPokemon.get(i));
-            }
-        }
-    }
-
-    private void addEvosFromRange(List<Pokemon> pokemonPool, int first_min, int first_max, int second_min,
-            int second_max) {
-        Set<Pokemon> newPokemon = new TreeSet<Pokemon>();
-        for (Pokemon pk : pokemonPool) {
-            if (pk.getNumber() >= first_min && pk.getNumber() <= first_max) {
-                for (Evolution ev : pk.getEvolutionsFrom()) {
-                    if (ev.to.getNumber() >= second_min && ev.to.getNumber() <= second_max) {
-                        if (!pokemonPool.contains(ev.to) && !newPokemon.contains(ev.to)) {
-                            newPokemon.add(ev.to);
-                        }
-                    }
-                }
-
-                for (Evolution ev : pk.getEvolutionsTo()) {
-                    if (ev.from.getNumber() >= second_min && ev.from.getNumber() <= second_max) {
-                        if (!pokemonPool.contains(ev.from) && !newPokemon.contains(ev.from)) {
-                            newPokemon.add(ev.from);
-                        }
-                    }
-                }
-            }
-        }
-
-        pokemonPool.addAll(newPokemon);
     }
 
     @Override
@@ -306,22 +205,61 @@ public abstract class AbstractRomHandler implements RomHandler {
             }
         }
     }
+    
+    /**
+     * Generate (or regenerate) the pokemon pool based on restrictions
+     * @return
+     */
+    @Override
+    public PokemonPool generatePokemonPool(GenRestrictions restrictions) {
+        return (pokemonPool = PokemonPool.build(getPokemon(), restrictions));
+    }
+    
+    /**
+     * Return the pokemon pool, lazily initialized
+     * @return
+     */
+    @Override
+    public PokemonPool getPokemonPool() {
+        if (pokemonPool == null)
+            pokemonPool = PokemonPool.build(getPokemon(), null);
+        return pokemonPool;
+    }
+    
+    @Override
+    public void removeEvosForPokemonPool() {
+        List<Pokemon> pokemonIncluded = getPokemonPool().getPokemon();
+        Set<Evolution> keepEvos = new HashSet<Evolution>();
+        for (Pokemon pk : getPokemon()) {
+            if (pk != null) {
+                keepEvos.clear();
+                for (Evolution evol : pk.getEvolutionsFrom()) {
+                    if (pokemonIncluded.contains(evol.from) && pokemonIncluded.contains(evol.to)) {
+                        keepEvos.add(evol);
+                    } else {
+                        evol.to.getEvolutionsTo().remove(evol);
+                    }
+                }
+                pk.getEvolutionsFrom().retainAll(keepEvos);
+            }
+        }
+    }
 
     public Pokemon randomPokemon() {
-        checkPokemonRestrictions();
-        return mainPokemonList.get(this.random.nextInt(mainPokemonList.size()));
+        List<Pokemon> list = getPokemonPool().getPokemon();
+        return list.get(random.nextInt(list.size()));
     }
 
     @Override
     public Pokemon randomNonLegendaryPokemon() {
-        checkPokemonRestrictions();
-        return noLegendaryList.get(this.random.nextInt(noLegendaryList.size()));
+        List<Pokemon> list = getPokemonPool().getPokemon(false).collect(Collectors.toList());
+        return list.get(random.nextInt(list.size()));
     }
 
     @Override
     public Pokemon randomLegendaryPokemon() {
-        checkPokemonRestrictions();
-        return onlyLegendaryList.get(this.random.nextInt(onlyLegendaryList.size()));
+        List<Pokemon> list = getPokemonPool().getPokemon(true).collect(Collectors.toList());
+        return list.get(random.nextInt(list.size()));
     }
 
     private List<Pokemon> twoEvoPokes;
@@ -545,373 +483,15 @@ public abstract class AbstractRomHandler implements RomHandler {
 
         return newAbility;
     }
-
-    @Override
-    public void randomEncounters(boolean useTimeOfDay, boolean catchEmAll, boolean typeThemed, boolean usePowerLevels,
-            boolean noLegendaries) {
-        checkPokemonRestrictions();
-        List<EncounterSet> currentEncounters = this.getEncounters(useTimeOfDay);
-
-        // New: randomize the order encounter sets are randomized in.
-        // Leads to less predictable results for various modifiers.
-        // Need to keep the original ordering around for saving though.
-        List<EncounterSet> scrambledEncounters = new ArrayList<EncounterSet>(currentEncounters);
-        Collections.shuffle(scrambledEncounters, this.random);
-
-        List<Pokemon> banned = this.bannedForWildEncounters();
-        // Assume EITHER catch em all OR type themed OR match strength for now
-        if (catchEmAll) {
-
-            List<Pokemon> allPokes = noLegendaries ? new ArrayList<Pokemon>(noLegendaryList) : new ArrayList<Pokemon>(
-                    mainPokemonList);
-            allPokes.removeAll(banned);
-            for (EncounterSet area : scrambledEncounters) {
-                List<Pokemon> pickablePokemon = allPokes;
-                if (area.bannedPokemon.size() > 0) {
-                    pickablePokemon = new ArrayList<Pokemon>(allPokes);
-                    pickablePokemon.removeAll(area.bannedPokemon);
-                }
-                for (Encounter enc : area.encounters) {
-                    // Pick a random pokemon
-                    if (pickablePokemon.size() == 0) {
-                        // Only banned pokes are left, ignore them and pick
-                        // something else for now.
-                        List<Pokemon> tempPickable = noLegendaries ? new ArrayList<Pokemon>(noLegendaryList)
-                                : new ArrayList<Pokemon>(mainPokemonList);
-                        tempPickable.removeAll(banned);
-                        tempPickable.removeAll(area.bannedPokemon);
-                        if (tempPickable.size() == 0) {
-                            throw new RandomizationException("ERROR: Couldn't replace a wild Pokemon!");
-                        }
-                        int picked = this.random.nextInt(tempPickable.size());
-                        enc.pokemon = tempPickable.get(picked);
-                    } else {
-                        // Picked this Pokemon, remove it
-                        int picked = this.random.nextInt(pickablePokemon.size());
-                        enc.pokemon = pickablePokemon.get(picked);
-                        pickablePokemon.remove(picked);
-                        if (allPokes != pickablePokemon) {
-                            allPokes.remove(enc.pokemon);
-                        }
-                        if (allPokes.size() == 0) {
-                            // Start again
-                            allPokes.addAll(noLegendaries ? noLegendaryList : mainPokemonList);
-                            allPokes.removeAll(banned);
-                            if (pickablePokemon != allPokes) {
-                                pickablePokemon.addAll(allPokes);
-                                pickablePokemon.removeAll(area.bannedPokemon);
-                            }
-                        }
-                    }
-                }
-            }
-        } else if (typeThemed) {
-            Map<Type, List<Pokemon>> cachedPokeLists = new TreeMap<Type, List<Pokemon>>();
-            for (EncounterSet area : scrambledEncounters) {
-                List<Pokemon> possiblePokemon = null;
-                int iterLoops = 0;
-                while (possiblePokemon == null && iterLoops < 10000) {
-                    Type areaTheme = randomType();
-                    if (!cachedPokeLists.containsKey(areaTheme)) {
-                        List<Pokemon> pType = pokemonOfType(areaTheme, noLegendaries);
-                        pType.removeAll(banned);
-                        cachedPokeLists.put(areaTheme, pType);
-                    }
-                    possiblePokemon = cachedPokeLists.get(areaTheme);
-                    if (area.bannedPokemon.size() > 0) {
-                        possiblePokemon = new ArrayList<Pokemon>(possiblePokemon);
-                        possiblePokemon.removeAll(area.bannedPokemon);
-                    }
-                    if (possiblePokemon.size() == 0) {
-                        // Can't use this type for this area
-                        possiblePokemon = null;
-                    }
-                    iterLoops++;
-                }
-                if (possiblePokemon == null) {
-                    throw new RandomizationException("Could not randomize an area in a reasonable amount of attempts.");
-                }
-                for (Encounter enc : area.encounters) {
-                    // Pick a random themed pokemon
-                    enc.pokemon = possiblePokemon.get(this.random.nextInt(possiblePokemon.size()));
-                }
-            }
-        } else if (usePowerLevels) {
-            List<Pokemon> allowedPokes = noLegendaries ? new ArrayList<Pokemon>(noLegendaryList)
-                    : new ArrayList<Pokemon>(mainPokemonList);
-            allowedPokes.removeAll(banned);
-            for (EncounterSet area : scrambledEncounters) {
-                List<Pokemon> localAllowed = allowedPokes;
-                if (area.bannedPokemon.size() > 0) {
-                    localAllowed = new ArrayList<Pokemon>(allowedPokes);
-                    localAllowed.removeAll(area.bannedPokemon);
-                }
-                for (Encounter enc : area.encounters) {
-                    enc.pokemon = pickWildPowerLvlReplacement(localAllowed, enc.pokemon, false, null);
-                }
-            }
-        } else {
-            // Entirely random
-            for (EncounterSet area : scrambledEncounters) {
-                for (Encounter enc : area.encounters) {
-                    enc.pokemon = noLegendaries ? randomNonLegendaryPokemon() : randomPokemon();
-                    while (banned.contains(enc.pokemon) || area.bannedPokemon.contains(enc.pokemon)) {
-                        enc.pokemon = noLegendaries ? randomNonLegendaryPokemon() : randomPokemon();
-                    }
-                }
-            }
-        }
-
-        setEncounters(useTimeOfDay, currentEncounters);
+    
+    private List<Pokemon> pokemonListCopy(boolean noLegendaries) {
+        return noLegendaries ? getPokemonPool().getPokemon(false).collect(Collectors.toList())
+                : new ArrayList<>(getPokemonPool().getPokemon());
     }
-
-    @Override
-    public void area1to1Encounters(boolean useTimeOfDay, boolean catchEmAll, boolean typeThemed,
-            boolean usePowerLevels, boolean noLegendaries) {
-        checkPokemonRestrictions();
-        List<EncounterSet> currentEncounters = this.getEncounters(useTimeOfDay);
-        List<Pokemon> banned = this.bannedForWildEncounters();
-
-        // New: randomize the order encounter sets are randomized in.
-        // Leads to less predictable results for various modifiers.
-        // Need to keep the original ordering around for saving though.
-        List<EncounterSet> scrambledEncounters = new ArrayList<EncounterSet>(currentEncounters);
-        Collections.shuffle(scrambledEncounters, this.random);
-
-        // Assume EITHER catch em all OR type themed for now
-        if (catchEmAll) {
-            List<Pokemon> allPokes = noLegendaries ? new ArrayList<Pokemon>(noLegendaryList) : new ArrayList<Pokemon>(
-                    mainPokemonList);
-            allPokes.removeAll(banned);
-            for (EncounterSet area : scrambledEncounters) {
-                // Poke-set
-                Set<Pokemon> inArea = pokemonInArea(area);
-                // Build area map using catch em all
-                Map<Pokemon, Pokemon> areaMap = new TreeMap<Pokemon, Pokemon>();
-                List<Pokemon> pickablePokemon = allPokes;
-                if (area.bannedPokemon.size() > 0) {
-                    pickablePokemon = new ArrayList<Pokemon>(allPokes);
-                    pickablePokemon.removeAll(area.bannedPokemon);
-                }
-                for (Pokemon areaPk : inArea) {
-                    if (pickablePokemon.size() == 0) {
-                        // No more pickable pokes left, take a random one
-                        List<Pokemon> tempPickable = noLegendaries ? new ArrayList<Pokemon>(noLegendaryList)
-                                : new ArrayList<Pokemon>(mainPokemonList);
-                        tempPickable.removeAll(banned);
-                        tempPickable.removeAll(area.bannedPokemon);
-                        if (tempPickable.size() == 0) {
-                            throw new RandomizationException("ERROR: Couldn't replace a wild Pokemon!");
-                        }
-                        int picked = this.random.nextInt(tempPickable.size());
-                        Pokemon pickedMN = tempPickable.get(picked);
-                        areaMap.put(areaPk, pickedMN);
-                    } else {
-                        int picked = this.random.nextInt(allPokes.size());
-                        Pokemon pickedMN = allPokes.get(picked);
-                        areaMap.put(areaPk, pickedMN);
-                        pickablePokemon.remove(pickedMN);
-                        if (allPokes != pickablePokemon) {
-                            allPokes.remove(pickedMN);
-                        }
-                        if (allPokes.size() == 0) {
-                            // Start again
-                            allPokes.addAll(noLegendaries ? noLegendaryList : mainPokemonList);
-                            allPokes.removeAll(banned);
-                            if (pickablePokemon != allPokes) {
-                                pickablePokemon.addAll(allPokes);
-                                pickablePokemon.removeAll(area.bannedPokemon);
-                            }
-                        }
-                    }
-                }
-                for (Encounter enc : area.encounters) {
-                    // Apply the map
-                    enc.pokemon = areaMap.get(enc.pokemon);
-                }
-            }
-        } else if (typeThemed) {
-            Map<Type, List<Pokemon>> cachedPokeLists = new TreeMap<Type, List<Pokemon>>();
-            for (EncounterSet area : scrambledEncounters) {
-                // Poke-set
-                Set<Pokemon> inArea = pokemonInArea(area);
-                List<Pokemon> possiblePokemon = null;
-                int iterLoops = 0;
-                while (possiblePokemon == null && iterLoops < 10000) {
-                    Type areaTheme = randomType();
-                    if (!cachedPokeLists.containsKey(areaTheme)) {
-                        List<Pokemon> pType = pokemonOfType(areaTheme, noLegendaries);
-                        pType.removeAll(banned);
-                        cachedPokeLists.put(areaTheme, pType);
-                    }
-                    possiblePokemon = new ArrayList<Pokemon>(cachedPokeLists.get(areaTheme));
-                    if (area.bannedPokemon.size() > 0) {
-                        possiblePokemon.removeAll(area.bannedPokemon);
-                    }
-                    if (possiblePokemon.size() < inArea.size()) {
-                        // Can't use this type for this area
-                        possiblePokemon = null;
-                    }
-                    iterLoops++;
-                }
-                if (possiblePokemon == null) {
-                    throw new RandomizationException("Could not randomize an area in a reasonable amount of attempts.");
-                }
-
-                // Build area map using type theme.
-                Map<Pokemon, Pokemon> areaMap = new TreeMap<Pokemon, Pokemon>();
-                for (Pokemon areaPk : inArea) {
-                    int picked = this.random.nextInt(possiblePokemon.size());
-                    Pokemon pickedMN = possiblePokemon.get(picked);
-                    areaMap.put(areaPk, pickedMN);
-                    possiblePokemon.remove(picked);
-                }
-                for (Encounter enc : area.encounters) {
-                    // Apply the map
-                    enc.pokemon = areaMap.get(enc.pokemon);
-                }
-            }
-        } else if (usePowerLevels) {
-            List<Pokemon> allowedPokes = noLegendaries ? new ArrayList<Pokemon>(noLegendaryList)
-                    : new ArrayList<Pokemon>(mainPokemonList);
-            allowedPokes.removeAll(banned);
-            for (EncounterSet area : scrambledEncounters) {
-                // Poke-set
-                Set<Pokemon> inArea = pokemonInArea(area);
-                // Build area map using randoms
-                Map<Pokemon, Pokemon> areaMap = new TreeMap<Pokemon, Pokemon>();
-                List<Pokemon> usedPks = new ArrayList<Pokemon>();
-                List<Pokemon> localAllowed = allowedPokes;
-                if (area.bannedPokemon.size() > 0) {
-                    localAllowed = new ArrayList<Pokemon>(allowedPokes);
-                    localAllowed.removeAll(area.bannedPokemon);
-                }
-                for (Pokemon areaPk : inArea) {
-                    Pokemon picked = pickWildPowerLvlReplacement(localAllowed, areaPk, false, usedPks);
-                    areaMap.put(areaPk, picked);
-                    usedPks.add(picked);
-                }
-                for (Encounter enc : area.encounters) {
-                    // Apply the map
-                    enc.pokemon = areaMap.get(enc.pokemon);
-                }
-            }
-        } else {
-            // Entirely random
-            for (EncounterSet area : scrambledEncounters) {
-                // Poke-set
-                Set<Pokemon> inArea = pokemonInArea(area);
-                // Build area map using randoms
-                Map<Pokemon, Pokemon> areaMap = new TreeMap<Pokemon, Pokemon>();
-                for (Pokemon areaPk : inArea) {
-                    Pokemon picked = noLegendaries ? randomNonLegendaryPokemon() : randomPokemon();
-                    while (areaMap.containsValue(picked) || banned.contains(picked)
-                            || area.bannedPokemon.contains(picked)) {
-                        picked = noLegendaries ? randomNonLegendaryPokemon() : randomPokemon();
-                    }
-                    areaMap.put(areaPk, picked);
-                }
-                for (Encounter enc : area.encounters) {
-                    // Apply the map
-                    enc.pokemon = areaMap.get(enc.pokemon);
-                }
-            }
-        }
-
-        setEncounters(useTimeOfDay, currentEncounters);
-
-    }
-
-    @Override
-    public void game1to1Encounters(boolean useTimeOfDay, boolean usePowerLevels, boolean noLegendaries) {
-        checkPokemonRestrictions();
-        // Build the full 1-to-1 map
-        Map<Pokemon, Pokemon> translateMap = new TreeMap<Pokemon, Pokemon>();
-        List<Pokemon> remainingLeft = allPokemonWithoutNull();
-        List<Pokemon> remainingRight = noLegendaries ? new ArrayList<Pokemon>(noLegendaryList)
-                : new ArrayList<Pokemon>(mainPokemonList);
-        List<Pokemon> banned = this.bannedForWildEncounters();
-        // Banned pokemon should be mapped to themselves
-        for (Pokemon bannedPK : banned) {
-            translateMap.put(bannedPK, bannedPK);
-            remainingLeft.remove(bannedPK);
-            remainingRight.remove(bannedPK);
-        }
-        while (remainingLeft.isEmpty() == false) {
-            if (usePowerLevels) {
-                int pickedLeft = this.random.nextInt(remainingLeft.size());
-                Pokemon pickedLeftP = remainingLeft.remove(pickedLeft);
-                Pokemon pickedRightP = null;
-                if (remainingRight.size() == 1) {
-                    // pick this (it may or may not be the same poke)
-                    pickedRightP = remainingRight.get(0);
-                } else {
-                    // pick on power level with the current one blocked
-                    pickedRightP = pickWildPowerLvlReplacement(remainingRight, pickedLeftP, true, null);
-                }
-                remainingRight.remove(pickedRightP);
-                translateMap.put(pickedLeftP, pickedRightP);
-            } else {
-                int pickedLeft = this.random.nextInt(remainingLeft.size());
-                int pickedRight = this.random.nextInt(remainingRight.size());
-                Pokemon pickedLeftP = remainingLeft.remove(pickedLeft);
-                Pokemon pickedRightP = remainingRight.get(pickedRight);
-                while (pickedLeftP.getNumber() == pickedRightP.getNumber() && remainingRight.size() != 1) {
-                    // Reroll for a different pokemon if at all possible
-                    pickedRight = this.random.nextInt(remainingRight.size());
-                    pickedRightP = remainingRight.get(pickedRight);
-                }
-                remainingRight.remove(pickedRight);
-                translateMap.put(pickedLeftP, pickedRightP);
-            }
-            if (remainingRight.size() == 0) {
-                // restart
-                remainingRight.addAll(noLegendaries ? noLegendaryList : mainPokemonList);
-                remainingRight.removeAll(banned);
-            }
-        }
-
-        // Map remaining to themselves just in case
-        List<Pokemon> allPokes = allPokemonWithoutNull();
-        for (Pokemon poke : allPokes) {
-            if (!translateMap.containsKey(poke)) {
-                translateMap.put(poke, poke);
-            }
-        }
-
-        List<EncounterSet> currentEncounters = this.getEncounters(useTimeOfDay);
-
-        for (EncounterSet area : currentEncounters) {
-            for (Encounter enc : area.encounters) {
-                // Apply the map
-                enc.pokemon = translateMap.get(enc.pokemon);
-                if (area.bannedPokemon.contains(enc.pokemon)) {
-                    // Ignore the map and put a random non-banned poke
-                    List<Pokemon> tempPickable = noLegendaries ? new ArrayList<Pokemon>(noLegendaryList)
-                            : new ArrayList<Pokemon>(mainPokemonList);
-                    tempPickable.removeAll(banned);
-                    tempPickable.removeAll(area.bannedPokemon);
-                    if (tempPickable.size() == 0) {
-                        throw new RandomizationException("ERROR: Couldn't replace a wild Pokemon!");
-                    }
-                    if (usePowerLevels) {
-                        enc.pokemon = pickWildPowerLvlReplacement(tempPickable, enc.pokemon, false, null);
-                    } else {
-                        int picked = this.random.nextInt(tempPickable.size());
-                        enc.pokemon = tempPickable.get(picked);
-                    }
-                }
-            }
-        }
-
-        setEncounters(useTimeOfDay, currentEncounters);
-
-    }
-
+    
     @Override
     public void randomizeTrainerPokes(boolean usePowerLevels, boolean noLegendaries, boolean noEarlyWonderGuard,
             int levelModifier) {
-        checkPokemonRestrictions();
         List<Trainer> currentTrainers = this.getTrainers();
 
         // New: randomize the order trainers are randomized in.
@@ -921,8 +501,7 @@ public abstract class AbstractRomHandler implements RomHandler {
         Collections.shuffle(scrambledTrainers, this.random);
 
         cachedReplacementLists = new TreeMap<Type, List<Pokemon>>();
-        cachedAllList = noLegendaries ? new ArrayList<Pokemon>(noLegendaryList) : new ArrayList<Pokemon>(
-                mainPokemonList);
+        cachedAllList = pokemonListCopy(noLegendaries);
 
         // Fully random is easy enough - randomize then worry about rival
         // carrying starter at the end
@@ -947,11 +526,9 @@ public abstract class AbstractRomHandler implements RomHandler {
     @Override
     public void typeThemeTrainerPokes(boolean usePowerLevels, boolean weightByFrequency, boolean noLegendaries,
             boolean noEarlyWonderGuard, int levelModifier) {
-        checkPokemonRestrictions();
         List<Trainer> currentTrainers = this.getTrainers();
         cachedReplacementLists = new TreeMap<Type, List<Pokemon>>();
-        cachedAllList = noLegendaries ? new ArrayList<Pokemon>(noLegendaryList) : new ArrayList<Pokemon>(
-                mainPokemonList);
+        cachedAllList = pokemonListCopy(noLegendaries);
         typeWeightings = new TreeMap<Type, Integer>();
         totalTypeWeighting = 0;
 
@@ -1062,7 +639,6 @@ public abstract class AbstractRomHandler implements RomHandler {
 
     @Override
     public void rivalCarriesStarter() {
-        checkPokemonRestrictions();
         List<Trainer> currentTrainers = this.getTrainers();
         rivalCarriesStarterUpdate(currentTrainers, "RIVAL", 1);
         rivalCarriesStarterUpdate(currentTrainers, "FRIEND", 2);
@@ -1071,7 +647,6 @@ public abstract class AbstractRomHandler implements RomHandler {
 
     @Override
     public void forceFullyEvolvedTrainerPokes(int minLevel) {
-        checkPokemonRestrictions();
         List<Trainer> currentTrainers = this.getTrainers();
         for (Trainer t : currentTrainers) {
             for (TrainerPokemon tp : t.pokemon) {
@@ -1914,14 +1489,17 @@ public abstract class AbstractRomHandler implements RomHandler {
     @Override
     public void randomizeStaticPokemon(boolean legendForLegend) {
         // Load
-        checkPokemonRestrictions();
         List<Pokemon> currentStaticPokemon = this.getStaticPokemon();
         List<Pokemon> replacements = new ArrayList<Pokemon>();
         List<Pokemon> banned = this.bannedForStaticPokemon();
 
         if (legendForLegend) {
-            List<Pokemon> legendariesLeft = new ArrayList<Pokemon>(onlyLegendaryList);
-            List<Pokemon> nonlegsLeft = new ArrayList<Pokemon>(noLegendaryList);
+            final List<Pokemon> legends = getPokemonPool().getPokemon(true).collect(Collectors.toList()),
+                    nonLegends = getPokemonPool().getPokemon(false).collect(Collectors.toList());
+            
+            List<Pokemon> legendariesLeft = new ArrayList<>(legends),
+                    nonlegsLeft = new ArrayList<>(nonLegends);
+            
             legendariesLeft.removeAll(banned);
             nonlegsLeft.removeAll(banned);
             for (int i = 0; i < currentStaticPokemon.size(); i++) {
@@ -1930,25 +1508,25 @@ public abstract class AbstractRomHandler implements RomHandler {
                 if (old.isLegendary()) {
                     newPK = legendariesLeft.remove(this.random.nextInt(legendariesLeft.size()));
                     if (legendariesLeft.size() == 0) {
-                        legendariesLeft.addAll(onlyLegendaryList);
+                        legendariesLeft.addAll(legends);
                         legendariesLeft.removeAll(banned);
                     }
                 } else {
                     newPK = nonlegsLeft.remove(this.random.nextInt(nonlegsLeft.size()));
                     if (nonlegsLeft.size() == 0) {
-                        nonlegsLeft.addAll(noLegendaryList);
+                        nonlegsLeft.addAll(nonLegends);
                         nonlegsLeft.removeAll(banned);
                     }
                 }
                 replacements.add(newPK);
             }
         } else {
-            List<Pokemon> pokemonLeft = new ArrayList<Pokemon>(mainPokemonList);
+            List<Pokemon> pokemonLeft = new ArrayList<Pokemon>(getPokemonPool().getPokemon());
             pokemonLeft.removeAll(banned);
             for (int i = 0; i < currentStaticPokemon.size(); i++) {
                 Pokemon newPK = pokemonLeft.remove(this.random.nextInt(pokemonLeft.size()));
                 if (pokemonLeft.size() == 0) {
-                    pokemonLeft.addAll(mainPokemonList);
+                    pokemonLeft.addAll(getPokemonPool().getPokemon());
                     pokemonLeft.removeAll(banned);
                 }
                 replacements.add(newPK);
@@ -2637,7 +2215,6 @@ public abstract class AbstractRomHandler implements RomHandler {
     @Override
     public void randomizeIngameTrades(boolean randomizeRequest, boolean randomNickname, boolean randomOT,
             boolean randomStats, boolean randomItem, CustomNamesSet customNames) {
-        checkPokemonRestrictions();
         // Process trainer names
         List<String> trainerNames = new ArrayList<String>();
         // Check for the file
@@ -2777,18 +2354,17 @@ public abstract class AbstractRomHandler implements RomHandler {
     @Override
     public void randomizeEvolutions(boolean similarStrength, boolean sameType, boolean limitToThreeStages,
             boolean forceChange) {
-        checkPokemonRestrictions();
-        List<Pokemon> pokemonPool = new ArrayList<Pokemon>(mainPokemonList);
+        List<Pokemon> pokemonPool = new ArrayList<>(getPokemonPool().getPokemon());
         int stageLimit = limitToThreeStages ? 3 : 10;
 
         // Cache old evolutions for data later
-        Map<Pokemon, List<Evolution>> originalEvos = new HashMap<Pokemon, List<Evolution>>();
+        Map<Pokemon, List<Evolution>> originalEvos = new HashMap<>();
         for (Pokemon pk : pokemonPool) {
-            originalEvos.put(pk, new ArrayList<Evolution>(pk.getEvolutionsFrom()));
+            originalEvos.put(pk, new ArrayList<>(pk.getEvolutionsFrom()));
         }
 
-        Set<EvolutionPair> newEvoPairs = new HashSet<EvolutionPair>();
-        Set<EvolutionPair> oldEvoPairs = new HashSet<EvolutionPair>();
+        Set<EvolutionPair> newEvoPairs = new HashSet<>();
+        Set<EvolutionPair> oldEvoPairs = new HashSet<>();
 
         if (forceChange) {
             for (Pokemon pk : pokemonPool) {
@@ -2798,7 +2374,7 @@ public abstract class AbstractRomHandler implements RomHandler {
             }
         }
 
-        List<Pokemon> replacements = new ArrayList<Pokemon>();
+        List<Pokemon> replacements = new ArrayList<>();
 
         int loops = 0;
         while (loops < 1) {
@@ -2820,7 +2396,7 @@ public abstract class AbstractRomHandler implements RomHandler {
                     replacements.clear();
 
                     // Step 1: base filters
-                    for (Pokemon pk : mainPokemonList) {
+                    for (Pokemon pk : getPokemonPool().getPokemon()) {
                         // Prevent evolving into oneself (mandatory)
                         if (pk == fromPK) {
                             continue;
@@ -3173,30 +2749,10 @@ public abstract class AbstractRomHandler implements RomHandler {
         return false;
     }
 
-    private List<Pokemon> pokemonOfType(Type type, boolean noLegendaries) {
-        List<Pokemon> typedPokes = new ArrayList<Pokemon>();
-        for (Pokemon pk : mainPokemonList) {
-            if (pk != null && (!noLegendaries || !pk.isLegendary())) {
-                if (pk.getPrimaryType() == type || pk.getSecondaryType() == type) {
-                    typedPokes.add(pk);
-                }
-            }
-        }
-        return typedPokes;
-    }
-
     private List<Pokemon> allPokemonWithoutNull() {
-        List<Pokemon> allPokes = new ArrayList<Pokemon>(this.getPokemon());
+        List<Pokemon> allPokes = new ArrayList<>(this.getPokemon());
         allPokes.remove(0);
         return allPokes;
-    }
-
-    private Set<Pokemon> pokemonInArea(EncounterSet area) {
-        Set<Pokemon> inArea = new TreeSet<Pokemon>();
-        for (Encounter enc : area.encounters) {
-            inArea.add(enc.pokemon);
-        }
-        return inArea;
     }
 
     private Map<Type, Integer> typeWeightings;
@@ -3207,7 +2763,7 @@ public abstract class AbstractRomHandler implements RomHandler {
             // Determine weightings
             for (Type t : Type.values()) {
                 if (typeInGame(t)) {
-                    int pkWithTyping = pokemonOfType(t, noLegendaries).size();
+                    int pkWithTyping = (int) getPokemonPool().getPokemonOfType(t, noLegendaries).count();
                     typeWeightings.put(t, pkWithTyping);
                     totalTypeWeighting += pkWithTyping;
                 }
@@ -3508,7 +3064,8 @@ public abstract class AbstractRomHandler implements RomHandler {
         List<Pokemon> pickFrom = cachedAllList;
         if (type != null) {
             if (!cachedReplacementLists.containsKey(type)) {
-                cachedReplacementLists.put(type, pokemonOfType(type, noLegendaries));
+                cachedReplacementLists.put(type,
+                    getPokemonPool().getPokemonOfType(type, noLegendaries).collect(Collectors.toList()));
             }
             pickFrom = cachedReplacementLists.get(type);
         }
@@ -3547,38 +3104,6 @@ public abstract class AbstractRomHandler implements RomHandler {
                 }
                 return pk;
             }
-        }
-    }
-
-    private Pokemon pickWildPowerLvlReplacement(List<Pokemon> pokemonPool, Pokemon current, boolean banSamePokemon,
-            List<Pokemon> usedUp) {
-        // start with within 10% and add 5% either direction till we find
-        // something
-        int currentBST = current.bstForPowerLevels();
-        int minTarget = currentBST - currentBST / 10;
-        int maxTarget = currentBST + currentBST / 10;
-        List<Pokemon> canPick = new ArrayList<Pokemon>();
-        int expandRounds = 0;
-        while (canPick.isEmpty() || (canPick.size() < 3 && expandRounds < 3)) {
-            for (Pokemon pk : pokemonPool) {
-                if (pk.bstForPowerLevels() >= minTarget && pk.bstForPowerLevels() <= maxTarget
-                        && (!banSamePokemon || pk != current) && (usedUp == null || !usedUp.contains(pk))
-                        && !canPick.contains(pk)) {
-                    canPick.add(pk);
-                }
-            }
-            minTarget -= currentBST / 20;
-            maxTarget += currentBST / 20;
-            expandRounds++;
-        }
-        return canPick.get(this.random.nextInt(canPick.size()));
-    }
-
-    /* Helper methods used by subclasses and/or this class */
-
-    protected void checkPokemonRestrictions() {
-        if (!restrictionsSet) {
-            setPokemonPool(null);
         }
     }
 
@@ -3661,22 +3186,19 @@ public abstract class AbstractRomHandler implements RomHandler {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Pokemon> bannedForWildEncounters() {
-        return (List<Pokemon>) Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Integer> getMovesBannedFromLevelup() {
-        return (List<Integer>) Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Pokemon> bannedForStaticPokemon() {
-        return (List<Pokemon>) Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
