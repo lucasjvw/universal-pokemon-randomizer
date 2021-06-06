@@ -18,7 +18,7 @@ public class WildPokemonModifier {
     final Settings settings;
     final Random random;
     
-    public WildPokemonModifier build(RomHandler romHandler, Settings settings, Random random) {
+    public static WildPokemonModifier build(RomHandler romHandler, Settings settings, Random random) {
         switch (settings.getWildPokemonMod()) {
             case RANDOM:
                 return new RandomWildPokemonMod(romHandler, settings, random);
@@ -31,7 +31,7 @@ public class WildPokemonModifier {
         }
     }
 
-    public WildPokemonModifier(RomHandler romHandler, Settings settings, Random random) {
+    protected WildPokemonModifier(RomHandler romHandler, Settings settings, Random random) {
         this.romHandler = romHandler;
         this.settings = settings;
         this.random = random;

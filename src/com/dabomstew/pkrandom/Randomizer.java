@@ -362,7 +362,7 @@ public class Randomizer {
             romHandler.minimumCatchRate(normalMin, legendaryMin);
         }
         
-        new WildPokemonModifier(romHandler, settings, romHandler.getRandom()).modify();
+        WildPokemonModifier.build(romHandler, settings, romHandler.getRandom()).modify();
 
         maybeLogWildPokemonChanges(log, romHandler);
         List<EncounterSet> encounters = romHandler.getEncounters(settings.isUseTimeBasedEncounters());
